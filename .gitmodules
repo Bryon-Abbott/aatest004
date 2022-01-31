@@ -1,0 +1,6 @@
+[submodule "ext/aafsm"]
+	path = ext/aafsm
+	url = git@github.com:Bryon-Abbott/aafsm.git
+[submodule "ext/aaled"]
+	path = ext/aaled
+	url = git@github.com:Bryon-Abbott/aaled.git
