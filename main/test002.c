@@ -72,11 +72,12 @@ void app_main(void)
         SM_Event(ledRedSM, LED_Toggle, NULL); 
         vTaskDelay(100 / portTICK_PERIOD_MS);
         SM_Event(ledRedSM, LED_Toggle, NULL); 
-        s_led_state_red = SM_Get(ledRedSM, LED_GetStatus); 
-        s_led_response_red = SM_Get(ledRedSM, LED_GetResponse); 
-        msg = getResponseMessage(s_led_response_red); 
-        ESP_LOGI(TAG, "Turning the Red LED %s!", msg);
+        //s_led_state_red = SM_Get(ledRedSM, LED_GetStatus); 
         //ESP_LOGI(TAG, "Turning the Red LED %s!", s_led_state_red == LED_ON ? "ON" : "OFF");
+        //s_led_response_red = SM_Get(ledRedSM, LED_GetResponse); 
+        //msg = getResponseMessage(s_led_response_red); 
+        //ESP_LOGI(TAG, "Turning the Red LED %s!", msg);
+        ESP_LOGI(TAG, "Turning the Red LED %s!", jsonResponseMessage(SM_Get(ledRedSM, LED_GetResponse)));
         vTaskDelay(CONFIG_BLINK_PERIOD / portTICK_PERIOD_MS);
 
         /* Toggle the LED state */
@@ -85,11 +86,12 @@ void app_main(void)
         SM_Event(ledGreenSM, LED_Toggle, NULL); 
         vTaskDelay(100 / portTICK_PERIOD_MS);
         SM_Event(ledGreenSM, LED_Toggle, NULL); 
-        s_led_state_green = SM_Get(ledGreenSM, LED_GetStatus); 
-        s_led_response_green = SM_Get(ledGreenSM, LED_GetResponse); 
-        msg = getResponseMessage(s_led_response_green); 
-        ESP_LOGI(TAG, "Turning the Green LED %s!", msg);
+        //s_led_state_green = SM_Get(ledGreenSM, LED_GetStatus); 
         //ESP_LOGI(TAG, "Turning the Green LED %s!", s_led_state_green == LED_ON ? "ON" : "OFF");
+        //s_led_response_green = SM_Get(ledGreenSM, LED_GetResponse); 
+        //msg = getResponseMessage(s_led_response_green); 
+        //ESP_LOGI(TAG, "Turning the Green LED %s!", msg);
+        ESP_LOGI(TAG, "Turning the Green LED %s!", jsonResponseMessage(SM_Get(ledGreenSM, LED_GetResponse)));
         vTaskDelay(CONFIG_BLINK_PERIOD / portTICK_PERIOD_MS);
     }
 }

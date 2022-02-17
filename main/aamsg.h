@@ -1,3 +1,3 @@
 #include "response.h"
 
-char* getResponseMessage(AA_Response r);  
+char* jsonResponseMessage(AA_Response r);  

@@ -7,7 +7,7 @@
 #include "response.h"
 #include "aamsg.h"
 
-char* getResponseMessage(AA_Response r) 
+char* jsonResponseMessage(AA_Response r) 
 {
     cJSON *root;
     cJSON *arry;
