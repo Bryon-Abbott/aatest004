@@ -1,5 +1,5 @@
 
-idf_component_register(SRCS "test001.c" 
+idf_component_register(SRCS "aamsg.c" "test002.c" 
                         INCLUDE_DIRS "."
-                        REQUIRES aaled 
+                        REQUIRES aaled json
     ) 

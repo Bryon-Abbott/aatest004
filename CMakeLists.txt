@@ -15,6 +15,4 @@ set(EXTRA_COMPONENT_DIRS $ENV{IDF_PATH}/examples/common_components/led_strip ext
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 
-project(test001) 
-
-# add_executable(${PROJECT_NAME} test001.c)  
+project(test002) 
