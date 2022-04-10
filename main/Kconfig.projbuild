@@ -1,5 +1,11 @@
 menu "Example Configuration"
 
+    config BROKER_URL
+        string "Broker URL"
+        default "mqtt://mqtt.eclipseprojects.io"
+        help
+            URL of the broker to connect to
+
     choice BLINK_LED
         prompt "Blink LED type"
         default BLINK_LED_GPIO if IDF_TARGET_ESP32

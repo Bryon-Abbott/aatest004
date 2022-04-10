@@ -1,3 +1,5 @@
 #include "response.h"
 
-char* jsonResponseMessage(AA_Response r);  
+char* aaResponseMessage(AA_Response r);  
+char* aaRegisterMessage(char *ma); 
+char* aaHeartbeatMessage(void);
