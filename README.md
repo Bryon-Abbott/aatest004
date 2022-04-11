@@ -14,6 +14,7 @@ Bring in mqtt
 
 mqtt://test.mosquitto.org
 mqtt://mqtt.eclipseprojects.io
+mqtt://192.168.100.10 # Use to Connect to PI
 
 #aatest004 
 Build aaAppLed to message back and forth

@@ -78,16 +78,16 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     switch ((esp_mqtt_event_id_t)event_id) {
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
-        msg_id = esp_mqtt_client_publish(client, "/aabroker/register", jsonRegisterMessage(macString), 0, 1, 0);
+        msg_id = esp_mqtt_client_publish(client, "/AA/REGISTER", aaRegisterMessage(macString), 0, 1, 0); 
         ESP_LOGI(TAG, "sent publish successful //register, msg_id=%d", msg_id);
 
-        msg_id = esp_mqtt_client_subscribe(client, "/topic/aaiot0", 0);
+        msg_id = esp_mqtt_client_subscribe(client, "/AA/AAIOT0", 0);
         ESP_LOGI(TAG, "sent subscribe successful //aaiot0, msg_id=%d", msg_id);
 
-        msg_id = esp_mqtt_client_subscribe(client, "/topic/aaiot1", 1);
+        msg_id = esp_mqtt_client_subscribe(client, "/AA/AAIOT1", 1);
         ESP_LOGI(TAG, "sent subscribe successful //aaiot1, msg_id=%d", msg_id);
 
-        msg_id = esp_mqtt_client_unsubscribe(client, "/topic/aaiot1");
+        msg_id = esp_mqtt_client_unsubscribe(client, "/AA/AAIOT1");
         ESP_LOGI(TAG, "sent unsubscribe successful //aaiot1, msg_id=%d", msg_id);
         break;
     case MQTT_EVENT_DISCONNECTED:
@@ -95,7 +95,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         break;
     case MQTT_EVENT_SUBSCRIBED:
         ESP_LOGI(TAG, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
-        msg_id = esp_mqtt_client_publish(client, "/topic/aaiot0", "data_1", 0, 0, 0);
+            msg_id = esp_mqtt_client_publish(client, "/AA/AAIOT0", "data_1", 0, 0, 0);
         ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
         break;
     case MQTT_EVENT_UNSUBSCRIBED:
@@ -182,12 +182,12 @@ void app_main(void)
     while (1) {
         /* Toggle the LED state */
         SM_Event(ledRedSM, LED_Toggle, NULL); 
-        ESP_LOGI(TAG, "Turning the Red LED %s!", jsonResponseMessage(SM_Get(ledRedSM, LED_GetResponse)));
+        ESP_LOGI(TAG, "Turning the Red LED %s!", aaResponseMessage(SM_Get(ledRedSM, LED_GetResponse)));
         vTaskDelay(CONFIG_BLINK_PERIOD / portTICK_PERIOD_MS);
 
         /* Toggle the LED state */
         SM_Event(ledGreenSM, LED_Toggle, NULL); 
-        ESP_LOGI(TAG, "Turning the Green LED %s!", jsonResponseMessage(SM_Get(ledGreenSM, LED_GetResponse)));
+        ESP_LOGI(TAG, "Turning the Green LED %s!", aaResponseMessage(SM_Get(ledGreenSM, LED_GetResponse)));
         vTaskDelay(CONFIG_BLINK_PERIOD / portTICK_PERIOD_MS);
     }
 }
