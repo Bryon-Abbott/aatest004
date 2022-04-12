@@ -1,0 +1,25 @@
+PROJECT(aaprotopub)
+
+find_package(Protobuf REQUIRED)
+
+IF(AA_CMAKE_DEBUG)
+    MESSAGE(STATUS "================================" )
+    MESSAGE(STATUS "Proto Directory ...: " )
+    MESSAGE(STATUS "Protobuf Found: " ${Protobuf_FOUND})
+    MESSAGE(STATUS "Protobuf Version: " ${Protobuf_VERSION})
+    MESSAGE(STATUS "cmake root: " ${CMAKE_ROOT})
+    MESSAGE(STATUS "Proto Src: " ${PROTO_SRC})
+    MESSAGE(STATUS "Proto Include Dirs: " ${Protobuf_INCLUDE_DIRS})
+    MESSAGE(STATUS "CMake Current Binary Dir: " ${CMAKE_CURRENT_BINARY_DIR})
+    MESSAGE(STATUS "Proto Library: " ${PROTOBUF_LIBRARY})
+ENDIF() 
+
+include_directories(${Protobuf_INCLUDE_DIRS})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS addressbook.proto commandmessage.proto)
+#PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS commandmessage.proto)
+MESSAGE(STATUS "Proto Src: " ${PROTO_SRCS})
+
+#ADD_EXECUTABLE(main main.cpp ${PROTO_SRCS} ${PROTO_HDRS})
+#TARGET_LINK_LIBRARIES(main ${PROTOBUF_LIBRARY})
+ADD_LIBRARY(aaproto ${PROTO_HDRS} ${PROTO_SRCS})

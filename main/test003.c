@@ -16,6 +16,11 @@
 #include "Led.h"
 #include "aamsg.h"
 
+// Test ;
+// GPIO 12 Red
+// GPIO 13 Green 
+// mqtt://192.168.100.10 
+
 // main function -
 // where the execution of program begins
 
@@ -51,7 +56,24 @@ static Led ledObj2={
                  .aaRespDesc={'\0'}}                 
 }; 
 SM_DEFINE(ledGreenSM, &ledObj2)
+///////
+void parsemessage(esp_mqtt_event_handle_t e)
+{
+    ESP_LOGI(TAG, "MSG=%d", e->msg_id);
+    ESP_LOGI(TAG, "TOPIC='%.*s'", e->topic_len, e->topic);
+    ESP_LOGI(TAG, "DATA=%.*s", e->data_len, e->data);
 
+    if (strncmp(e->topic, "/AA/R1/C1/L1", e->topic_len) == 0) {
+        /* Toggle the LED state */
+        SM_Event(ledRedSM, LED_Toggle, NULL); 
+        ESP_LOGI(TAG, "Turning the Red LED %s!", aaResponseMessage(SM_Get(ledRedSM, LED_GetResponse)));
+    } else if (strncmp(e->topic, "/AA/R1/C1/L2", e->topic_len) == 0) {
+        /* Toggle the LED state */
+        SM_Event(ledGreenSM, LED_Toggle, NULL); 
+        ESP_LOGI(TAG, "Turning the Green LED %s!", aaResponseMessage(SM_Get(ledGreenSM, LED_GetResponse))); 
+    }
+    return; 
+}
 /*
  * @brief Event handler registered to receive MQTT events
  *
@@ -71,31 +93,35 @@ static void log_error_if_nonzero(const char *message, int error_code)
 
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
+    char message[100]; 
     ESP_LOGD(TAG, "Event dispatched from event loop base=%s, event_id=%d", base, event_id);
     esp_mqtt_event_handle_t event = event_data;
     esp_mqtt_client_handle_t client = event->client;
-    int msg_id;
+    int msg_id=0;
     switch ((esp_mqtt_event_id_t)event_id) {
     case MQTT_EVENT_CONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
         msg_id = esp_mqtt_client_publish(client, "/AA/REGISTER", aaRegisterMessage(macString), 0, 1, 0); 
         ESP_LOGI(TAG, "sent publish successful //register, msg_id=%d", msg_id);
 
-        msg_id = esp_mqtt_client_subscribe(client, "/AA/AAIOT0", 0);
-        ESP_LOGI(TAG, "sent subscribe successful //aaiot0, msg_id=%d", msg_id);
+        // Subscribe to Red LED
+        msg_id = esp_mqtt_client_subscribe(client, "/AA/R1/C1/L1", 0);
+        ESP_LOGI(TAG, "sent subscribe successful /AA/R1/C1/L1, msg_id=%d", msg_id);
+        // Subscribe to Green LED
+        msg_id = esp_mqtt_client_subscribe(client, "/AA/R1/C1/L2", 0);
+        ESP_LOGI(TAG, "sent subscribe successful /AA/R1/C1/L2, msg_id=%d", msg_id);
 
-        msg_id = esp_mqtt_client_subscribe(client, "/AA/AAIOT1", 1);
-        ESP_LOGI(TAG, "sent subscribe successful //aaiot1, msg_id=%d", msg_id);
-
-        msg_id = esp_mqtt_client_unsubscribe(client, "/AA/AAIOT1");
-        ESP_LOGI(TAG, "sent unsubscribe successful //aaiot1, msg_id=%d", msg_id);
+        //msg_id = esp_mqtt_client_unsubscribe(client, "/AA/R1/C1/L2");
+        //ESP_LOGI(TAG, "sent unsubscribe successful //aaiot1, msg_id=%d", msg_id);
         break;
     case MQTT_EVENT_DISCONNECTED:
         ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
         break;
     case MQTT_EVENT_SUBSCRIBED:
+        // Note: Topic is not set in event for MQTT_EVENT_SUBSCRIBED!
         ESP_LOGI(TAG, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
-            msg_id = esp_mqtt_client_publish(client, "/AA/AAIOT0", "data_1", 0, 0, 0);
+        sprintf(message, "Subscribed successful, msg_id=%d", event->msg_id); 
+        msg_id = esp_mqtt_client_publish(client, "/AA/REGISTER", message, 0, 0, 0);
         ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
         break;
     case MQTT_EVENT_UNSUBSCRIBED:
@@ -106,9 +132,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         break;
     case MQTT_EVENT_DATA:
         ESP_LOGI(TAG, "MQTT_EVENT_DATA");
-        printf("MSG=%d\r\n", event->msg_id);
-        printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
-        printf("DATA=%.*s\r\n", event->data_len, event->data);
+        parsemessage(event);
         break;
     case MQTT_EVENT_ERROR:
         ESP_LOGI(TAG, "MQTT_EVENT_ERROR");
@@ -117,7 +141,6 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
             log_error_if_nonzero("reported from tls stack", event->error_handle->esp_tls_stack_err);
             log_error_if_nonzero("captured as transport's socket errno",  event->error_handle->esp_transport_sock_errno);
             ESP_LOGI(TAG, "Last errno string (%s)", strerror(event->error_handle->esp_transport_sock_errno));
-
         }
         break;
     case MQTT_EVENT_BEFORE_CONNECT:
@@ -148,7 +171,7 @@ void mqtt_app_start(void)
 void app_main(void)
 {
     // char* msg; 
-    int msg_id;
+    //int msg_id;
 
     esp_log_level_set("*", ESP_LOG_INFO);
     esp_log_level_set("LED", ESP_LOG_WARN);   
@@ -180,14 +203,14 @@ void app_main(void)
     SM_Event(ledGreenSM, LED_Configure, lData);
 
     while (1) {
-        /* Toggle the LED state */
-        SM_Event(ledRedSM, LED_Toggle, NULL); 
-        ESP_LOGI(TAG, "Turning the Red LED %s!", aaResponseMessage(SM_Get(ledRedSM, LED_GetResponse)));
-        vTaskDelay(CONFIG_BLINK_PERIOD / portTICK_PERIOD_MS);
+        // /* Toggle the LED state */
+        // SM_Event(ledRedSM, LED_Toggle, NULL); 
+        // ESP_LOGI(TAG, "Turning the Red LED %s!", aaResponseMessage(SM_Get(ledRedSM, LED_GetResponse)));
+        // vTaskDelay(CONFIG_BLINK_PERIOD / portTICK_PERIOD_MS);
 
-        /* Toggle the LED state */
-        SM_Event(ledGreenSM, LED_Toggle, NULL); 
-        ESP_LOGI(TAG, "Turning the Green LED %s!", aaResponseMessage(SM_Get(ledGreenSM, LED_GetResponse)));
+        // /* Toggle the LED state */
+        // SM_Event(ledGreenSM, LED_Toggle, NULL); 
+        // ESP_LOGI(TAG, "Turning the Green LED %s!", aaResponseMessage(SM_Get(ledGreenSM, LED_GetResponse)));
         vTaskDelay(CONFIG_BLINK_PERIOD / portTICK_PERIOD_MS);
     }
 }
