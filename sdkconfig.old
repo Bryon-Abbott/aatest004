@@ -131,7 +131,7 @@ CONFIG_PARTITION_TABLE_MD5=y
 #
 # Example Configuration
 #
-CONFIG_BROKER_URL="mqtt://192.168.100.10"
+CONFIG_BROKER_URL="mqtt://mqtt.eclipseprojects.io"
 CONFIG_BLINK_LED_GPIO=y
 # CONFIG_BLINK_LED_RMT is not set
 CONFIG_BLINK_GPIO1=12

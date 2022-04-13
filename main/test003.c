@@ -16,6 +16,8 @@
 #include "Led.h"
 #include "aamsg.h"
 
+#define GET_IMPLDATA(_OBJ_) ((ImplData*)(_OBJ_.implData))
+
 // Test ;
 // GPIO 12 Red
 // GPIO 13 Green 
@@ -34,26 +36,44 @@ static const char *TAG = "AATEST003";
 #define BLINK_GPIO1 CONFIG_BLINK_GPIO1 
 #define BLINK_GPIO2 CONFIG_BLINK_GPIO2
 
+// Implementation data structure
+typedef struct ImplData {
+    CHAR topic [100];
+    INT sub_mgs_id;  
+    BOOL subscribed; 
+} ImplData;
+
 // static uint8_t s_led_state_red = 0;
 // static uint8_t s_led_state_green = 0;
 // static AA_Response s_led_response_red = {}; 
 // static AA_Response s_led_response_green = {}; 
 
 // Define two public Led state machine instances
+static ImplData iData1={
+    .topic = {'\0'}, 
+    .sub_mgs_id = 0, 
+    .subscribed = false 
+}; 
 static Led ledObj1={
     .ledPin = CONFIG_BLINK_GPIO1, 
     .ledStatus = LED_UNCONFIGURED, 
     .aaResp = { .aaRespCode=0, 
-                 .aaRespDesc[0]='\0'}
-                 
+                 .aaRespDesc[0]='\0'}, 
+    .implData = &iData1
 }; 
 SM_DEFINE(ledRedSM, &ledObj1)
 
+static ImplData iData2={
+    .topic = {'\0'}, 
+    .sub_mgs_id = 0, 
+    .subscribed = false 
+}; 
 static Led ledObj2={
     .ledPin = CONFIG_BLINK_GPIO2, 
     .ledStatus = LED_UNCONFIGURED, 
     .aaResp = { .aaRespCode=0, 
-                 .aaRespDesc={'\0'}}                 
+                 .aaRespDesc={'\0'}},                  
+    .implData = &iData2                 
 }; 
 SM_DEFINE(ledGreenSM, &ledObj2)
 ///////
@@ -63,11 +83,11 @@ void parsemessage(esp_mqtt_event_handle_t e)
     ESP_LOGI(TAG, "TOPIC='%.*s'", e->topic_len, e->topic);
     ESP_LOGI(TAG, "DATA=%.*s", e->data_len, e->data);
 
-    if (strncmp(e->topic, "/AA/R1/C1/L1", e->topic_len) == 0) {
+    if (strncmp(e->topic, GET_IMPLDATA(ledObj1)->topic, e->topic_len) == 0) {
         /* Toggle the LED state */
         SM_Event(ledRedSM, LED_Toggle, NULL); 
         ESP_LOGI(TAG, "Turning the Red LED %s!", aaResponseMessage(SM_Get(ledRedSM, LED_GetResponse)));
-    } else if (strncmp(e->topic, "/AA/R1/C1/L2", e->topic_len) == 0) {
+    } else if (strncmp(e->topic, GET_IMPLDATA(ledObj2)->topic, e->topic_len) == 0) {
         /* Toggle the LED state */
         SM_Event(ledGreenSM, LED_Toggle, NULL); 
         ESP_LOGI(TAG, "Turning the Green LED %s!", aaResponseMessage(SM_Get(ledGreenSM, LED_GetResponse))); 
@@ -105,11 +125,16 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         ESP_LOGI(TAG, "sent publish successful //register, msg_id=%d", msg_id);
 
         // Subscribe to Red LED
-        msg_id = esp_mqtt_client_subscribe(client, "/AA/R1/C1/L1", 0);
-        ESP_LOGI(TAG, "sent subscribe successful /AA/R1/C1/L1, msg_id=%d", msg_id);
+        //msg_id = esp_mqtt_client_subscribe(client, "/AA/R1/C1/L1", 0);    strcpy(GET_IMPLDATA(ledObj1)->topic, "/AA/R1/C1/L1");
+        msg_id = esp_mqtt_client_subscribe(client, GET_IMPLDATA(ledObj1)->topic, 0);   
+        GET_IMPLDATA(ledObj1)->sub_mgs_id = msg_id; 
+        ESP_LOGI(TAG, "sent subscribe successful %s, msg_id=%d", GET_IMPLDATA(ledObj1)->topic, msg_id);
         // Subscribe to Green LED
-        msg_id = esp_mqtt_client_subscribe(client, "/AA/R1/C1/L2", 0);
-        ESP_LOGI(TAG, "sent subscribe successful /AA/R1/C1/L2, msg_id=%d", msg_id);
+        //msg_id = esp_mqtt_client_subscribe(client, "/AA/R1/C1/L2", 0);
+        msg_id = esp_mqtt_client_subscribe(client, GET_IMPLDATA(ledObj2)->topic, 0);   
+        GET_IMPLDATA(ledObj2)->sub_mgs_id = msg_id; 
+        ESP_LOGI(TAG, "sent subscribe successful %s, msg_id=%d", GET_IMPLDATA(ledObj2)->topic, msg_id);
+        //ESP_LOGI(TAG, "sent subscribe successful /AA/R1/C1/L2, msg_id=%d", msg_id);
 
         //msg_id = esp_mqtt_client_unsubscribe(client, "/AA/R1/C1/L2");
         //ESP_LOGI(TAG, "sent unsubscribe successful //aaiot1, msg_id=%d", msg_id);
@@ -120,6 +145,12 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     case MQTT_EVENT_SUBSCRIBED:
         // Note: Topic is not set in event for MQTT_EVENT_SUBSCRIBED!
         ESP_LOGI(TAG, "MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
+        if (GET_IMPLDATA(ledObj1)->sub_mgs_id == event->msg_id) {
+            ESP_LOGI(TAG, "Subscribe Successful, topic '%s', msg_id=%d", GET_IMPLDATA(ledObj1)->topic, event->msg_id);
+        }
+        if (GET_IMPLDATA(ledObj2)->sub_mgs_id == event->msg_id) {
+            ESP_LOGI(TAG, "Subscribe Successful, topic '%s', msg_id=%d", GET_IMPLDATA(ledObj2)->topic, event->msg_id);
+        }
         sprintf(message, "Subscribed successful, msg_id=%d", event->msg_id); 
         msg_id = esp_mqtt_client_publish(client, "/AA/REGISTER", message, 0, 0, 0);
         ESP_LOGI(TAG, "sent publish successful, msg_id=%d", msg_id);
@@ -184,6 +215,11 @@ void app_main(void)
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     ESP_ERROR_CHECK(example_connect());
+
+    //strcpy(((ImplData*)(ledObj1.implData))->topic, "/AA/R1/C1/L1");
+    strcpy(GET_IMPLDATA(ledObj1)->topic, "/AA/R1/C1/L1");
+    strcpy(GET_IMPLDATA(ledObj2)->topic, "/AA/R1/C1/L2");
+
     mqtt_app_start();
 
     LedEventData* lData;
@@ -201,6 +237,13 @@ void app_main(void)
     sprintf(lData->ledAction, "Some Action: %s ...", "Green");
     ESP_LOGI(TAG, "Test LED_Configure: %s ...", "Green" );
     SM_Event(ledGreenSM, LED_Configure, lData);
+
+    /* Toggle the LED state */
+    SM_Event(ledRedSM, LED_SetOn, NULL); 
+    ESP_LOGI(TAG, "Turning the Red LED %s!", aaResponseMessage(SM_Get(ledRedSM, LED_GetResponse)));
+    /* Toggle the LED state */
+    SM_Event(ledGreenSM, LED_SetOn, NULL); 
+    ESP_LOGI(TAG, "Turning the Green LED %s!", aaResponseMessage(SM_Get(ledGreenSM, LED_GetResponse)));
 
     while (1) {
         // /* Toggle the LED state */
