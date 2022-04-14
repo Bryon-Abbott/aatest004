@@ -9,8 +9,8 @@ cmake_minimum_required(VERSION 3.18.0)
 # include to point to machine/endian.h
 INCLUDE_DIRECTORIES("/home/bryon/.espressif/tools/xtensa-esp32-elf/esp-2021r2-8.4.0/xtensa-esp32-elf/xtensa-esp32-elf/sys-include"
                     "/home/bryon/esp/v4/esp-idf/examples/common_components/protocol_examples_common/include"
-                    "/home/bryon/AbbottCode/AAIoT/aatest003/ext/aafsm/src"
-                    "/home/bryon/AbbottCode/AAIoT/aatest003/ext/aaled/src")
+                    "/home/bryon/AbbottCode/AAIoT/aaclient/aatest003/ext/aafsm/src"
+                    "/home/bryon/AbbottCode/AAIoT/aaclient/aatest003/ext/aaled/src")
 
 set(EXTRA_COMPONENT_DIRS $ENV{IDF_PATH}/examples/common_components/protocol_examples_common ext)
 

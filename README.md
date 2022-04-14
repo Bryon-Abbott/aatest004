@@ -21,7 +21,15 @@ mqtt://192.168.100.10 # Use to Connect to PI
 Bring in google Protobuf (replace cJSON)
 
 Other Items: 
+Build Status_Request : App Request status from Client
+Build Register_Location_Request : Client Register a Location with the broker, Return location #
+Build Register_Area_Request : Client Registers an Area with the broker, give Location, Return location #
+Build Register_Controller_Request : Client Registers a Controller with the Broker, give Area, Returns Area #
+Build Register_Led_Request : Client Registers an Led with the Broker, gives Controller, Returns Led # 
+
 Build "Response" transaction to indicate state 
 Build Subscribe in App to set LED colour
 Provide Exit Command Button in Client & App 
+Improve WiFi Connect
+Secure MQTT with Certificat / UserID+PW
 

@@ -4,7 +4,7 @@
 // tutorials.  They are not part of the syntax for Protocol Buffers.
 //
 // To get an in-depth walkthrough of this file and the related examples, see:
-// https://developers.google.com/protocol-buffers/docs/tutorials
+// https://developers.google.com/protocol-buffers/docs/tutorials  
 
 // [START declaration]
 syntax = "proto3";

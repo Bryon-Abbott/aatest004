@@ -21,7 +21,7 @@
 // Test ;
 // GPIO 12 Red
 // GPIO 13 Green 
-// mqtt://192.168.100.10 
+// mqtt://192.168.100.10
 
 // main function -
 // where the execution of program begins
@@ -246,14 +246,6 @@ void app_main(void)
     ESP_LOGI(TAG, "Turning the Green LED %s!", aaResponseMessage(SM_Get(ledGreenSM, LED_GetResponse)));
 
     while (1) {
-        // /* Toggle the LED state */
-        // SM_Event(ledRedSM, LED_Toggle, NULL); 
-        // ESP_LOGI(TAG, "Turning the Red LED %s!", aaResponseMessage(SM_Get(ledRedSM, LED_GetResponse)));
-        // vTaskDelay(CONFIG_BLINK_PERIOD / portTICK_PERIOD_MS);
-
-        // /* Toggle the LED state */
-        // SM_Event(ledGreenSM, LED_Toggle, NULL); 
-        // ESP_LOGI(TAG, "Turning the Green LED %s!", aaResponseMessage(SM_Get(ledGreenSM, LED_GetResponse)));
         vTaskDelay(CONFIG_BLINK_PERIOD / portTICK_PERIOD_MS);
     }
 }
