@@ -29,7 +29,7 @@
 unsigned char mac[6] = {0};
 static char macString[25]; 
 esp_mqtt_client_handle_t client = NULL; 
-static const char *TAG = "AATEST003";
+static const char *TAG = "AATEST004";
 /* Use project configuration menu (idf.py menuconfig) to choose the GPIO to blink,
    or you can edit the following line and set a number here.
 */

@@ -1,0 +1,32 @@
+// [START declaration]
+syntax = "proto3";
+package aaproto;
+
+// [START messages]
+message ResponseMessage {
+
+    enum DeviceType {
+        CONTROLLER = 0;
+        LED = 1;
+      }
+
+    enum LedResponseCode { 
+      SUCCESS = 0; 
+      FAILED = 1; 
+    }
+  
+    enum LedStatus { 
+    CONFIGURED = 0; 
+    ON = 1; 
+    OFF = 2; 
+    UNKNOWN = 3; 
+  }
+  DeviceType Device = 1; 
+  int64 DeviceNo = 2; 
+  LedResponseCode Response = 3; 
+  LedStatus Status = 4; 
+
+//  google.protobuf.Timestamp TransactionTimestamp = 3;
+// "TransactionTimestamp":"2022-04-16T03:05:20Z"
+  string TransactionTimestamp = 5;
+}

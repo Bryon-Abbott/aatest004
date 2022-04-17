@@ -1,7 +1,7 @@
 // See README.txt for information and build instructions.
 //
 // Note: START and END tags are used in comments to define sections used in
-// tutorials.  They are not part of the syntax for Protocol Buffers.
+// tutorials.  They are not part of the syntax for Protocol Buffers.  
 //
 // To get an in-depth walkthrough of this file and the related examples, see:
 // https://developers.google.com/protocol-buffers/docs/tutorials
@@ -9,8 +9,6 @@
 // [START declaration]
 syntax = "proto3";
 package aaproto;
-
-import "google/protobuf/timestamp.proto";
 
 // [START messages]
 message CommandMessage {
@@ -23,16 +21,28 @@ message CommandMessage {
 
   enum LedCommand {
     CONFIG = 0; 
-    ON = 1; 
-    OFF = 2; 
+    SWITCH_ON = 1; 
+    SWITCH_OFF = 2; 
     TOGGLE = 3; 
   }
+
+  enum LedStatus { 
+    CONFIGURED = 0; 
+    ON = 1; 
+    OFF = 2; 
+    UNKNOWN = 3; 
+  }
+
   message LedCommands {
     int64 Pin = 1; 
-    LedCommand LedCmd = 2; 
+    string Location = 2; 
+    LedCommand LedCmd = 3; 
   } 
 
   repeated LedCommands LedCmds = 2; 
 
-  google.protobuf.Timestamp TransactionTimestamp = 3;
+//  google.protobuf.Timestamp TransactionTimestamp = 3;
+// "TransactionTimestamp":"2022-04-16T03:05:20Z"
+  string TransactionTimestamp = 3;
+
 }
